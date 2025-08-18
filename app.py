@@ -18,7 +18,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'csv'}
 
 # Load the trained model
-model = joblib.load('fraud_detection_model.pkl')
+model = joblib.load('fraud_detection_model_v2.pkl')
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
