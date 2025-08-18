@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Fraud Detection</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background elements */
+        .bg-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        .star:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .star:nth-child(2) { top: 15%; left: 80%; animation-delay: 0.5s; }
+        .star:nth-child(3) { top: 60%; left: 15%; animation-delay: 1s; }
+        .star:nth-child(4) { top: 40%; left: 90%; animation-delay: 1.5s; }
+        .star:nth-child(5) { top: 80%; left: 70%; animation-delay: 0.3s; }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .geometric-shape {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .cube-wireframe {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            left: 5%;
+            transform: rotate(45deg);
+            animation-delay: 0s;
+        }
+
+        .diamond {
+            width: 40px;
+            height: 40px;
+            top: 75%;
+            left: 15%;
+            transform: rotate(45deg);
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(45deg); }
+            50% { transform: translateY(-20px) rotate(45deg); }
+        }
+
+        /* Network lines */
+        .network-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: pulse 3s infinite;
+        }
+
+        .line1 {
+            top: 25%;
+            left: 0;
+            width: 300px;
+            transform: rotate(15deg);
+            animation-delay: 0s;
+        }
+
+        .line2 {
+            top: 70%;
+            right: 0;
+            width: 250px;
+            transform: rotate(-20deg);
+            animation-delay: 1s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .left-section {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        .search-icon {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: pulseGlow 4s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            50% { box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.4); }
+        }
+
+        .search-icon::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .search-icon::after {
+            content: '';
+            width: 12px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            position: absolute;
+            transform: rotate(45deg);
+            right: 12px;
+            bottom: 12px;
+        }
+
+        .title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease-out;
+            flex: 1;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .credit-card-image {
+            width: 320px;
+            height: 200px;
+            margin-left: 40px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: floatCard 6s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        .credit-card-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .credit-card-logo {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 30px;
+            height: 18px;
+            background: linear-gradient(45deg, #ffffff, #cccccc);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .credit-card-logo::before {
+            content: '';
+            width: 15px;
+            height: 9px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.3) 2px,
+                rgba(0, 0, 0, 0.3) 4px
+            );
+        }
+
+        .credit-card-number {
+            position: absolute;
+            bottom: 40px;
+            left: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 1px;
+        }
+
+        .credit-card-details {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            display: flex;
+            gap: 30px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .credit-card-valid {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .credit-card-name {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .credit-card-label {
+            font-size: 8px;
+            opacity: 0.6;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 50px;
+            font-weight: 300;
+            animation: fadeInUp 1s ease-out 0.2s both;
+            width: 100%;
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 1s ease-out 0.4s both;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .upload-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .upload-title {
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .upload-description {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .file-input-section {
+            margin-bottom: 30px;
+        }
+
+        .file-label {
+            font-size: 1.1rem;
+            color: white;
+            margin-bottom: 15px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 300px;
+        }
+
+        .file-input-wrapper:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            color: #000000;
+            border: none;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.4);
+            background: linear-gradient(135deg, #f0f0f0 0%, #b8b8b8 100%);
+        }
+
+        .analyze-btn:active {
+            transform: translateY(0);
+        }
+
+        .analyze-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2), transparent);
+            animation: loadingShine 1.5s infinite;
+        }
+
+        @keyframes loadingShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .right-section {
+            display: none; /* Initially hidden, will be shown before results */
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            animation: fadeInRight 1s ease-out 0.6s both;
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Glassmorphism Credit Card */
+        .glass-card {
+            width: 320px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+            animation: floatCard 6s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0) rotateY(0deg); }
+            50% { transform: translateY(-20px) rotateY(5deg); }
+        }
+
+        .card-logo {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            width: 40px;
+            height: 24px;
+            background: linear-gradient(45deg, #ffffff, #cccccc);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-logo::before {
+            content: '';
+            width: 20px;
+            height: 12px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.3) 2px,
+                rgba(0, 0, 0, 0.3) 4px
+            );
+        }
+
+        .card-number {
+            position: absolute;
+            bottom: 60px;
+            left: 24px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 2px;
+        }
+
+        .card-details {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            display: flex;
+            gap: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .card-valid {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .card-name {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .card-label {
+            font-size: 10px;
+            opacity: 0.6;
+        }
+
+        .shield {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 40px;
+            position: relative;
+            animation: pulseShield 3s infinite;
+        }
+
+        @keyframes pulseShield {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .shield-bg {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: shieldGlow 4s infinite alternate;
+        }
+
+        @keyframes shieldGlow {
+            0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+            100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+        }
+
+        .checkmark {
+            color: #000000;
+            font-size: 2rem;
+            font-weight: bold;
+            animation: checkPulse 2s infinite;
+        }
+
+        @keyframes checkPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .chart-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        .bar {
+            position: absolute;
+            bottom: 0;
+            background: linear-gradient(to top, #ffffff, #cccccc);
+            border-radius: 4px 4px 0 0;
+            animation: growUp 2s ease-out;
+        }
+
+        .bar:nth-child(1) { left: 0; width: 25px; height: 60px; animation-delay: 0.1s; }
+        .bar:nth-child(2) { left: 35px; width: 25px; height: 90px; animation-delay: 0.2s; }
+        .bar:nth-child(3) { left: 70px; width: 25px; height: 120px; animation-delay: 0.3s; }
+        .bar:nth-child(4) { left: 105px; width: 25px; height: 80px; animation-delay: 0.4s; }
+        .bar:nth-child(5) { left: 140px; width: 25px; height: 150px; animation-delay: 0.5s; }
+
+        @keyframes growUp {
+            0% { height: 0; }
+            100% { height: inherit; }
+        }
+
+        .trend-arrow {
+            position: absolute;
+            top: -30px;
+            right: -20px;
+            width: 40px;
+            height: 40px;
+            color: #ffffff;
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Results section styles */
+        .results-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: fadeInUp 1s ease-out both;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .results-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
+        }
+
+        /* Compact Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-card h4 {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .stat-card .stat-percentage {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+
+        /* Improved Visualization Section */
+        .visualization-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container.right-side {
+            margin-bottom: 50px; /* Add this line */
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            height: 300px; /* Fixed height for consistency */
+        }
+
+        .chart-title {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .fraud-legend {
+            background: rgba(255, 99, 132, 0.8);
+        }
+
+        .legit-legend {
+            background: rgba(54, 162, 235, 0.8);
+        }
+
+        /* Chart tooltip styling */
+        .chartjs-tooltip {
+            background: rgba(0, 0, 0, 0.7) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 4px !important;
+            padding: 8px 12px !important;
+        }
+
+        .chartjs-tooltip-key {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 5px;
+        }
+
+        /* Controls and table styles */
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgb(0, 0, 0);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:hover {
+            border-color: rgba(2, 0, 0, 0.5);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Results table */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .fraud {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .legitimate {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .confidence {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .high {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(200, 200, 200, 0.8) 100%);
+            color: #000;
+        }
+
+        .medium_high {
+            background: linear-gradient(135deg, rgba(220, 220, 220, 0.8) 0%, rgba(180, 180, 180, 0.8) 100%);
+            color: #000;
+        }
+
+        .medium {
+            background: linear-gradient(135deg, rgba(180, 180, 180, 0.8) 0%, rgba(140, 140, 140, 0.8) 100%);
+            color: #000;
+        }
+
+        .low_medium {
+            background: linear-gradient(135deg, rgba(140, 140, 140, 0.8) 0%, rgba(100, 100, 100, 0.8) 100%);
+            color: #fff;
+        }
+
+        .low {
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.8) 0%, rgba(60, 60, 60, 0.8) 100%);
+            color: #fff;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination-info {
+            text-align: center;
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95em;
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-left-color: white;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error message */
+        .error {
+            color: #e74c3c;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 8px;
+            display: none;
+            border-left: 4px solid #e74c3c;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* Action buttons */
+        .action-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            color: #000000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.4);
+            background: linear-gradient(135deg, #f0f0f0 0%, #b8b8b8 100%);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-shadow: none;
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn.success {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(200, 200, 200, 0.8) 100%);
+            color: #000;
+        }
+
+        .action-btn.success:hover {
+            background: linear-gradient(135deg, rgba(220, 220, 220, 0.8) 0%, rgba(180, 180, 180, 0.8) 100%);
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.8) 0%, rgba(60, 60, 60, 0.8) 100%);
+            color: white;
+        }
+
+        .action-btn.danger:hover {
+            background: linear-gradient(135deg, rgba(120, 120, 120, 0.8) 0%, rgba(80, 80, 80, 0.8) 100%);
+        }
+
+        .action-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.2), transparent);
+            animation: loadingShine 1.5s infinite;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .title-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .credit-card-image {
+                margin-left: 0;
+                margin-top: 20px;
+                width: 150px;
+                height: 100px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .upload-section {
+                padding: 30px 20px;
+            }
+
+            .visualization-section {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+
+            th, td {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+            
+            .filter-controls {
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-select {
+                width: 100%;
+            }
+            
+            
+            .controls-row {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-elements">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        
+        <div class="geometric-shape cube-wireframe"></div>
+        <div class="geometric-shape diamond"></div>
+        
+        <div class="network-line line1"></div>
+        <div class="network-line line2"></div>
+    </div>
+
+    <div class="container">
+        <div class="left-section">
+            <div class="search-icon"></div>
+            
+            <div class="title-container">
+                <h1>Credit Card<br>Fraud Detection</h1>
+                <div class="credit-card-image">
+                    <div class="credit-card-logo"></div>
+                    <div class="credit-card-number">5256 6775 4456 2245</div>
+                    <div class="credit-card-details">
+                        <div class="credit-card-valid">
+                            <span class="credit-card-label">Valid Thru</span>
+                            <span>12/24</span>
+                        </div>
+                        <div class="credit-card-name">
+                            <span class="credit-card-label">Cardholder</span>
+                            <span>KEVIN KALDE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="subtitle">Upload transaction data to detect potential fraud</p>
+            
+            <div class="upload-section">
+                <h2 class="upload-title">Upload Transaction Data</h2>
+                <p class="upload-description">
+                    Please upload a CSV file containing credit card transaction data. The file should include the following columns: Time,
+                </p>
+                
+                <form id="uploadForm">
+                    <div class="file-input-section">
+                        <label class="file-label">Select CSV file:</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="transactionFile" name="file" accept=".csv" class="file-input" required>
+                            <span id="fileName">Choose File &nbsp;&nbsp;&nbsp; No file chosen</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="analyze-btn">Analyze Transactions</button>
+                    
+                    <div class="error" id="errorMessage"></div>
+                </form>
+                
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner"></div>
+                    <p>Analyzing transactions...</p>
+                </div>
+            </div>
+            
+            <div class="results-section" id="resultsSection">
+                <h2 class="section-title">Analysis Results</h2>
+                
+                <div id="summaryStats" class="summary-stats"></div>
+                
+                <div class="visualization-section">
+                    <div class="chart-container right-side">
+                        <h3 class="chart-title">Fraud Distribution</h3>
+                        <canvas id="fraudChart"></canvas>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color fraud-legend"></span>
+                                <span>Fraudulent</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color legit-legend"></span>
+                                <span>Legitimate</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container right-side">
+                        <h3 class="chart-title">Amount Comparison</h3>
+                        <canvas id="amountChart"></canvas>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color fraud-legend"></span>
+                                <span>Fraud Average</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color legit-legend"></span>
+                                <span>Legit Average</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls-row">
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="filterStatus" class="filter-label">Filter by status:</label>
+                            <select id="filterStatus" class="filter-select">
+                                <option value="all">All Transactions</option>
+                                <option value="fraud">Fraud Only</option>
+                                <option value="legitimate">Legitimate Only</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="filterConfidence" class="filter-label">Confidence level:</label>
+                            <select id="filterConfidence" class="filter-select">
+                                <option value="all">All Levels</option>
+                                <option value="high">High (90-100%)</option>
+                                <option value="medium_high">Medium High (75-89%)</option>
+                                <option value="medium">Medium (60-74%)</option>
+                                <option value="low_medium">Low Medium (40-59%)</option>
+                                <option value="low">Low (0-39%)</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; align-self: flex-end;">
+                            <button id="applyFilters" class="action-btn secondary">Apply Filters</button>
+                            <button id="resetFilters" class="action-btn secondary">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button id="exportCSV" class="action-btn success">Export Results</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Status</th>
+                                <th>Confidence Score</th>
+                                <th>Confidence Level</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <!-- Results will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    <button id="prevPage" class="action-btn secondary" disabled>Previous</button>
+                    <button id="nextPage" class="action-btn secondary" disabled>Next</button>
+                </div>
+                
+                <div class="pagination-info" id="pageInfo"></div>
+            </div>
+        </div>
+        
+        <div class="right-section">
+            <div class="glass-card">
+                <div class="card-logo"></div>
+                <div class="card-number">5256 6775 4456 22455</div>
+                <div class="card-details">
+                    <div class="card-valid">
+                        <span class="card-label">Valid Thru</span>
+                        <span>12/24</span>
+                    </div>
+                    <div class="card-name">
+                        <span class="card-label">Cardholder Name</span>
+                        <span>KEVIN KALDE</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="shield">
+                <div class="shield-bg">
+                    <div class="checkmark">✓</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="trend-arrow">↗</div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Credit Card Fraud Detection System &copy; 2025</p>
+    </footer>
+    
+    <script>
+        // Global variables to store results and pagination state
+        let allResults = [];
+        let filteredResults = [];
+        let currentPage = 1;
+        const resultsPerPage = 10; // Changed from 100 to 10 per your request
+        let currentFilters = {
+            status: 'all',
+            confidence: 'all'
+        };
+        
+        // Chart instances
+        let fraudChart = null;
+        let amountChart = null;
+        
+        document.getElementById('transactionFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'No file chosen';
+            document.getElementById('fileName').textContent = 'Choose File     ' + fileName;
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('transactionFile');
+            const errorMessage = document.getElementById('errorMessage');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultsSection = document.getElementById('resultsSection');
+            const rightSection = document.querySelector('.right-section');
+            const submitBtn = document.querySelector('#uploadForm button[type="submit"]');
+            
+            // Reset UI
+            errorMessage.style.display = 'none';
+            resultsSection.style.display = 'none';
+            rightSection.style.display = 'none';
+            loadingIndicator.style.display = 'block';
+            submitBtn.textContent = 'Analyzing...';
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                loadingIndicator.style.display = 'none';
+                submitBtn.textContent = 'Analyze Transactions';
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                
+                if (data.error) {
+                    errorMessage.textContent = data.error;
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Store all results
+                allResults = data.results;
+                currentPage = 1;
+                
+                // Apply default filters (show all)
+                applyFilters();
+                
+                // Hide right section and show results section
+                rightSection.style.display = 'none';
+                resultsSection.style.display = 'block';
+            })
+            .catch(error => {
+                loadingIndicator.style.display = 'none';
+                submitBtn.textContent = 'Analyze Transactions';
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                
+                errorMessage.textContent = error.error || 'An error occurred while processing the file.';
+                errorMessage.style.display = 'block';
+                console.error('Error:', error);
+            });
+        });
+        
+        // Filter application function
+        function applyFilters() {
+            const statusFilter = document.getElementById('filterStatus').value;
+            const confidenceFilter = document.getElementById('filterConfidence').value;
+            
+            currentFilters = {
+                status: statusFilter,
+                confidence: confidenceFilter
+            };
+            
+            // Apply filters
+            filteredResults = allResults.filter(result => {
+                // Status filter
+                const statusMatch = 
+                    statusFilter === 'all' ||
+                    (statusFilter === 'fraud' && result.is_fraud === 1) ||
+                    (statusFilter === 'legitimate' && result.is_fraud === 0);
+                
+                // Confidence filter
+                const confidenceMatch = 
+                    confidenceFilter === 'all' ||
+                    result.confidence_level === confidenceFilter;
+                
+                return statusMatch && confidenceMatch;
+            });
+            
+            // Reset to first page when filters change
+            currentPage = 1;
+            
+            // Update display
+            updateResultsDisplay();
+            updateSummaryStats();
+            updateCharts();
+        }
+        
+        // Update the results display based on current page and filters
+        function updateResultsDisplay() {
+            const resultsBody = document.getElementById('resultsBody');
+            const prevButton = document.getElementById('prevPage');
+            const nextButton = document.getElementById('nextPage');
+            const pageInfo = document.getElementById('pageInfo');
+            
+            // Clear previous results
+            resultsBody.innerHTML = '';
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
+            const startIdx = (currentPage - 1) * resultsPerPage;
+            const endIdx = Math.min(startIdx + resultsPerPage, filteredResults.length);
+            const pageResults = filteredResults.slice(startIdx, endIdx);
+            
+            // Update pagination controls
+            prevButton.disabled = currentPage <= 1;
+            nextButton.disabled = currentPage >= totalPages;
+            
+            // Update page info
+            pageInfo.textContent = `Showing ${startIdx + 1}-${endIdx} of ${filteredResults.length} transactions (Page ${currentPage} of ${totalPages})`;
+            
+            // Populate table with current page results
+            pageResults.forEach(result => {
+                const row = document.createElement('tr');
+                
+                const statusClass = result.is_fraud ? 'fraud' : 'legitimate';
+                const statusText = result.is_fraud ? 'Fraud' : 'Legitimate';
+                
+                const confidenceClass = result.confidence_level;
+                const confidenceScore = result.confidence_score;
+                const confidencePercentage = Math.round((1 - confidenceScore) * 100);
+                let confidenceText;
+                
+                // Format confidence text based on level
+                switch(confidenceClass) {
+                    case 'high':
+                        confidenceText = `High (${confidencePercentage}%)`;
+                        break;
+                    case 'medium_high':
+                        confidenceText = `Medium High (${confidencePercentage}%)`;
+                        break;
+                    case 'medium':
+                        confidenceText = `Medium (${confidencePercentage}%)`;
+                        break;
+                    case 'low_medium':
+                        confidenceText = `Low Medium (${confidencePercentage}%)`;
+                        break;
+                    case 'low':
+                        confidenceText = `Low (${confidencePercentage}%)`;
+                        break;
+                    default:
+                        confidenceText = confidenceClass;
+                }
+                
+                row.innerHTML = `
+                    <td>${result.transaction_id}</td>
+                    <td class="${statusClass}">${statusText}</td>
+                    <td>${confidenceScore.toFixed(4)}</td>
+                    <td><span class="confidence ${confidenceClass}">${confidenceText}</span></td>
+                `;
+                
+                resultsBody.appendChild(row);
+            });
+        }
+        
+        // Update summary statistics
+        function updateSummaryStats() {
+            const summaryStats = document.getElementById('summaryStats');
+            
+            const totalTransactions = allResults.length;
+            const fraudCount = allResults.filter(r => r.is_fraud === 1).length;
+            const fraudPercentage = (fraudCount / totalTransactions * 100).toFixed(2);
+            
+            const filteredCount = filteredResults.length;
+            const filteredFraudCount = filteredResults.filter(r => r.is_fraud === 1).length;
+            const filteredFraudPercentage = filteredCount > 0 ? 
+                (filteredFraudCount / filteredCount * 100).toFixed(2) : 0;
+            
+            summaryStats.innerHTML = `
+                <div class="stat-card">
+                    <h4>Total Transactions Analyzed</h4>
+                    <div class="stat-value">${totalTransactions.toLocaleString()}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Fraudulent Transactions Found</h4>
+                    <div class="stat-value">${fraudCount.toLocaleString()}</div>
+                    <div class="stat-percentage">${fraudPercentage}% of total</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Filtered Transactions Showing</h4>
+                    <div class="stat-value">${filteredCount.toLocaleString()}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Fraud in Filtered Results</h4>
+                    <div class="stat-value">${filteredFraudCount.toLocaleString()}</div>
+                    <div class="stat-percentage">${filteredFraudPercentage}% of filtered</div>
+                </div>
+            `;
+        }
+        
+        // Update charts
+        function updateCharts() {
+            updateFraudChart();
+            updateAmountChart();
+        }
+        
+        function updateFraudChart() {
+            const ctx = document.getElementById('fraudChart').getContext('2d');
+            
+            // Calculate fraud vs legitimate counts
+            const fraudCount = filteredResults.filter(r => r.is_fraud === 1).length;
+            const legitCount = filteredResults.filter(r => r.is_fraud === 0).length;
+            
+            if (fraudChart) {
+                fraudChart.destroy();
+            }
+            
+            fraudChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Fraudulent', 'Legitimate'],
+                    datasets: [{
+                        data: [fraudCount, legitCount],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 255, 255, 0.8)',
+                            'rgba(255, 255, 255, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    radius: '75%'
+                }
+            });
+        }
+        
+        function updateAmountChart() {
+            const ctx = document.getElementById('amountChart').getContext('2d');
+            
+            // Prepare amount data
+            const fraudAmounts = filteredResults.filter(r => r.is_fraud === 1).map(r => r.amount);
+            const legitAmounts = filteredResults.filter(r => r.is_fraud === 0).map(r => r.amount);
+            
+            // Calculate average amounts
+            const avgFraudAmount = fraudAmounts.length > 0 ? 
+                fraudAmounts.reduce((a, b) => a + b, 0) / fraudAmounts.length : 0;
+            const avgLegitAmount = legitAmounts.length > 0 ? 
+                legitAmounts.reduce((a, b) => a + b, 0) / legitAmounts.length : 0;
+            
+            if (amountChart) {
+                amountChart.destroy();
+            }
+            
+            amountChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Average Amount'],
+                    datasets: [
+                        {
+                            label: 'Fraudulent',
+                            data: [avgFraudAmount],
+                            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Legitimate',
+                            data: [avgLegitAmount],
+                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: $${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                callback: function(value) {
+                                    return '$' + value.toFixed(2);
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Event listeners for filters
+        document.getElementById('applyFilters').addEventListener('click', applyFilters);
+        
+        document.getElementById('resetFilters').addEventListener('click', function() {
+            document.getElementById('filterStatus').value = 'all';
+            document.getElementById('filterConfidence').value = 'all';
+            applyFilters();
+        });
+        
+        // Event listeners for pagination
+        document.getElementById('prevPage').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateResultsDisplay();
+            }
+        });
+        
+        document.getElementById('nextPage').addEventListener('click', function() {
+            const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateResultsDisplay();
+            }
+        });
+        
+        // Export to CSV functionality
+        document.getElementById('exportCSV').addEventListener('click', function() {
+            if (filteredResults.length === 0) {
+                alert('No results to export');
+                return;
+            }
+            
+            // Create CSV content
+            let csvContent = "Transaction ID,Status,Confidence Score,Confidence Level\n";
+            
+            filteredResults.forEach(result => {
+                const status = result.is_fraud ? 'Fraud' : 'Legitimate';
+                const confidencePercentage = Math.round((1 - result.confidence_score) * 100);
+                let confidenceText;
+                
+                switch(result.confidence_level) {
+                    case 'high':
+                        confidenceText = `High (${confidencePercentage}%)`;
+                        break;
+                    case 'medium_high':
+                        confidenceText = `Medium High (${confidencePercentage}%)`;
+                        break;
+                    case 'medium':
+                        confidenceText = `Medium (${confidencePercentage}%)`;
+                        break;
+                    case 'low_medium':
+                        confidenceText = `Low Medium (${confidencePercentage}%)`;
+                        break;
+                    case 'low':
+                        confidenceText = `Low (${confidencePercentage}%)`;
+                        break;
+                    default:
+                        confidenceText = result.confidence_level;
+                }
+                
+                csvContent += `${result.transaction_id},${status},${result.confidence_score.toFixed(4)},${confidenceText}\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'fraud_detection_results.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
