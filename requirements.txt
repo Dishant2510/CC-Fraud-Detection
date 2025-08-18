@@ -5,3 +5,4 @@ numpy
 joblib
 werkzeug
 gunicorn
+xgboost==1.7.6
