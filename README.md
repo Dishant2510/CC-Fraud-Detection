@@ -2,18 +2,18 @@
 
 A lightweight credit card fraud detection web app. Upload a CSV of transactions and the app flags suspicious entries in real time using a custom-trained ML model.
 
-## ✨ Features
+##  Features
 - **Upload & predict**: Drag-and-drop a `.csv` and get per-transaction fraud predictions.
 - **Probabilities + confidence tiers**: Returns `confidence_score` and human-readable `confidence_level` (`high`, `medium_high`, `medium`, `low_medium`, `low`).
 - **Production-ready**: Works locally and is prepped for free-tier deploys (Render/Railway) with `Procfile` and `render.yaml`.
 
-## 🧱 Tech Stack
+##  Tech Stack
 - **Backend**: Flask, scikit-learn, joblib
 - **Data**: Pandas, NumPy
 - **Model**: Custom-trained classifier saved as `fraud_detection_model.pkl`
 - **Serving**: gunicorn (for production)
 
-## 🗂️ Project Structure
+##  Project Structure
 CCFRAUD/
 ├─ CCFraud/
 │ ├─ templates/
@@ -26,7 +26,7 @@ CCFRAUD/
 │ └─ requirements.txt
 
 
-## 🚀 Quick Start (Local)
+##  Quick Start (Local)
 
 1. **Create & activate env**
    python -m venv .venv
@@ -50,7 +50,7 @@ Note: The app expects fraud_detection_model.pkl in the same folder as app.py.
 
 
 
-🧾 CSV Format (required columns)
+ CSV Format (required columns)
 Your CSV must contain:
 
 Time, V1, V2, ..., V28, Amount
@@ -58,10 +58,10 @@ If Class exists, it will be ignored (dropped before prediction).
 
 Only .csv uploads are allowed.
 
-🌐 Web UI
+ Web UI
 GET / serves templates/index.html with a simple upload form that posts to /predict.
 
-☁️ Deployment
+ Deployment
 Render (example)
 Repo should include Procfile and render.yaml.
 
@@ -74,7 +74,7 @@ Set Root Directory to CCFRAUD/CCFraud (where app.py lives) when creating the ser
 Python build command: pip install -r requirements.txt
 
 
-🔒 Notes & Best Practices
+ Notes & Best Practices
 Add a .gitignore to avoid committing large CSVs and uploads:
 
 .venv/
