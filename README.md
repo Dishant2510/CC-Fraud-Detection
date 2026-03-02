@@ -85,7 +85,7 @@ Validate CSVs server-side (current code checks columns and extension).
 
 Consider rate limiting, auth, and server-side file size limits for production.
 
-⚠️ Limitations / Future Work
+ Limitations / Future Work
 Current scaler is fit per-upload on Amount only; consider persisting a training-time scaler for consistent scaling.
 
 Add threshold tuning to reduce false positives based on business cost.
